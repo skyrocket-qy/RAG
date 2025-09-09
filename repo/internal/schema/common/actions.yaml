@@ -1,0 +1,8 @@
+# for object-less actions, use same ns:id ex. system:action#list_users@role:admin
+namespaces:
+  system:
+    relations:
+      list_users: {}
+      create_user: {}
+      update_user: {}
+      delete_user: {}

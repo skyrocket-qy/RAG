@@ -1,0 +1,26 @@
+package service
+
+import (
+	"context"
+	"fmt"
+
+	"authz/internal/config"
+	"authz/internal/util"
+	"github.com/rs/zerolog/log"
+	"github.com/segmentio/kafka-go"
+)
+
+func NewKafkaReader(lc *util.LifecycleParallel) *kafka.Reader {
+	log.Info().Msgf("start kafka reader on %s:%s", config.Conf.Kafka.Host, config.Conf.Kafka.Port)
+
+	r := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: []string{fmt.Sprintf("%s:%s", config.Conf.Kafka.Host, config.Conf.Kafka.Port)},
+		Topic:   "pg.public.tuples",
+	})
+
+	lc.Add(r, func(c context.Context) error {
+		return r.Close()
+	})
+
+	return r
+}

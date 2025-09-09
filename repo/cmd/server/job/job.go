@@ -1,0 +1,54 @@
+package job
+
+import (
+	"context"
+
+	"authz/internal/service"
+	"authz/internal/service/database"
+	"authz/internal/service/logx"
+	"authz/internal/util"
+	"authz/internal/zanzibar"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
+)
+
+var Cmd = &cobra.Command{
+	Use:   "job",
+	Short: "run single job service",
+	// Long:  `The longer description`,
+	Run: start,
+}
+
+func start(cmd *cobra.Command, args []string) {
+	if err := util.NewConfig(); err != nil {
+		log.Err(err).Msg("Failed to load config")
+
+		return
+	}
+
+	if err := logx.InitLogger(); err != nil {
+		log.Err(err).Msg("Failed to init logger")
+
+		return
+	}
+
+	lc := util.NewLifecycleParallel()
+
+	db, err := database.New(lc)
+	if err != nil {
+		log.Err(err).Msg("Failed to init db")
+
+		return
+	}
+
+	kafkaR := service.NewKafkaReader(lc)
+
+	zm, err := zanzibar.NewZanzibarMemory(context.TODO(), lc, db, nil, kafkaR)
+	if err != nil {
+		log.Err(err).Msg("Failed to init rbac engine")
+
+		return
+	}
+
+	zm.SyncGraphCheckpoint(context.TODO())
+}

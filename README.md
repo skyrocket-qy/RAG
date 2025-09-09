@@ -20,7 +20,7 @@ Before you begin, ensure you have the following installed:
 ## Setup
 
 1.  **Clone the Repository (or place your code):**
-    Ensure the codebase you want to embed is located in a directory named `repo` at the root of this project. If your code is elsewhere, update the `REPO_PATH` variable in `embed_adminx.py`.
+    Ensure the codebase you want to embed is located in a directory named `repo` at the root of this project. If your code is elsewhere, update the `REPO_PATH` variable in `embed.py`.
 
     ```bash
     # Example: If your Go project is in a different location
@@ -73,7 +73,7 @@ Before you begin, ensure you have the following installed:
 Run the embedding script from the project root directory:
 
 ```bash
-python embed_adminx.py
+python embed.py
 ```
 
 The script will load your documents, split them into chunks, generate embeddings, and store them in the `rag_embedding` table (or your specified collection name) in your PostgreSQL database.
@@ -113,4 +113,4 @@ To confirm that the embeddings have been successfully stored in your PostgreSQL 
 ## Notes
 
 *   **LangChain Deprecation Warning:** You might see a `LangChainDeprecationWarning` regarding `HuggingFaceEmbeddings`. This is a warning, not an error, and the script will still function. For future compatibility, you can update your `langchain` setup to use the new `langchain-huggingface` package as suggested in the warning.
-*   **Customizing File Types:** If you have other file types in your repository that you wish to embed, you can add them to the `file_types` dictionary in `embed_adminx.py`. If `unstructured` struggles with a specific file type, consider loading it as plain text using `TextLoader` as demonstrated for Dockerfiles and Go module files.
+*   **Customizing File Types:** If you have other file types in your repository that you wish to embed, you can add them to the `file_types` dictionary in `embed.py`. If `unstructured` struggles with a specific file type, consider loading it as plain text using `TextLoader` as demonstrated for Dockerfiles and Go module files.

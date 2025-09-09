@@ -30,8 +30,6 @@ file_types = {
     ".txt": "text",
     ".go": "go",
     ".yml": "yaml",
-    
-    
 }
 
 def load_documents(repo_path, file_types):

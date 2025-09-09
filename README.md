@@ -64,6 +64,8 @@ Before you begin, ensure you have the following installed:
     ```bash
     # For macOS:
     brew install libmagic
+    brew install llama.cpp
+    brew install cmake
     # For Debian/Ubuntu:
     # sudo apt-get update && sudo apt-get install libmagic-dev
     ```

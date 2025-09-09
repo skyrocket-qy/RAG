@@ -1,5 +1,5 @@
 pg:
-	docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:17.2
+	docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=password pgvector/pgvector:pg17
 
 bk:
 	git add .

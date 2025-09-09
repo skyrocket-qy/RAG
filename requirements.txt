@@ -50,9 +50,11 @@ numpy==1.26.4
 olefile==0.47
 orjson==3.11.3
 packaging==25.0
+pgvector==0.4.1
 pillow==11.0.0
 propcache==0.3.2
 psutil==7.0.0
+psycopg2-binary==2.9.10
 pycparser==2.22
 pydantic==2.11.7
 pydantic-settings==2.10.1

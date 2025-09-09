@@ -2,6 +2,7 @@ import os
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import PGVector
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from sentence_transformers import SentenceTransformer
 
 
@@ -80,7 +81,7 @@ def embed_and_store(documents):
     print(f"Split {len(documents)} documents into {len(chunks)} chunks.")
 
     # Initialize embeddings
-    embeddings = SentenceTransformer("all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # PostgreSQL connection string and collection name from environment variables
     connection_string = os.getenv("PG_CONNECTION_STRING")

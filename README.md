@@ -1,5 +1,8 @@
 # RAG Code Embedding Project
 
+// https://huggingface.co/meta-llama/Llama-3.1-8B
+git clone  https://huggingface.co/meta-llama/Llama-3.1-8B ~/Llama-3-8B
+
 This project provides a Python script to embed your codebase into a PostgreSQL vector database using LangChain and Sentence Transformers. This setup is ideal for building Retrieval Augmented Generation (RAG) systems that can query your code.
 
 ## Features

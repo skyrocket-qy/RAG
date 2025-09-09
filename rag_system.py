@@ -1,17 +1,14 @@
 import os
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from langchain_community.vectorstores import PGVector
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.llms import LlamaCpp
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
 # --- Configuration ---
 
-# Path to the LLaMA 3.1-8B model directory
-# IMPORTANT: This assumes you have the PyTorch model files downloaded.
-# Running an 8B model on CPU can be very slow. Consider converting to GGUF and using llama-cpp-python for better performance.
-LLAMA_MODEL_PATH = os.path.expanduser("~/.llama/checkpoints/Llama3.1-8B")
+# Path to the LLaMA 3.1-8B GGUF model
+LLAMA_MODEL_PATH = os.path.expanduser("/Users/qy/Llama3.1-8B.Q4_K_M.gguf")
 
 # PostgreSQL connection details (from environment variables)
 PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "postgresql://postgres:password@localhost:5432/postgres")
@@ -26,30 +23,16 @@ K_RETRIEVED_DOCUMENTS = 4
 # --- Initialize Components ---
 
 def initialize_llm():
-    print(f"Loading LLaMA 3.1-8B model from {LLAMA_MODEL_PATH}...")
-    # Load model in FP16
-    model = AutoModelForCausalLM.from_pretrained(LLAMA_MODEL_PATH, torch_dtype=torch.float16)
-    tokenizer = AutoTokenizer.from_pretrained(LLAMA_MODEL_PATH)
-    
-    # Simple wrapper for the model to be used with LangChain
-    # This is a basic example; for more robust integration, consider LangChain's HuggingFacePipeline
-    class CustomLLM:
-        def __init__(self, model, tokenizer):
-            self.model = model
-            self.tokenizer = tokenizer
-
-        def _call(self, prompt: str, stop: list[str] | None = None) -> str:
-            inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
-            with torch.no_grad():
-                outputs = self.model.generate(**inputs, max_new_tokens=200, num_return_sequences=1)
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            return response
-
-        @property
-        def _llm_type(self) -> str:
-            return "custom_llama"
-
-    return CustomLLM(model, tokenizer)
+    print(f"Loading LLaMA 3.1-8B GGUF model from {LLAMA_MODEL_PATH}...")
+    llm = LlamaCpp(
+        model_path=LLAMA_MODEL_PATH,
+        temperature=0.7,
+        max_tokens=2000,
+        top_p=1,
+        n_ctx=2048, # Context window size
+        verbose=False, # Verbose is required to pass to the callback manager
+    )
+    return llm
 
 def initialize_retriever():
     print(f"Initializing retriever for collection: {PG_COLLECTION_NAME}...")

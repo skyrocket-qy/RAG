@@ -3,15 +3,9 @@ from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import PGVector
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from sentence_transformers import SentenceTransformer
 
-
-# Set your OpenAI API key as an environment variable
-# os.environ["OPENAI_API_KEY"] = "YOUR_OPENAI_API_KEY"
-
-# PostgreSQL connection details - set these as environment variables
-os.environ["PG_CONNECTION_STRING"] = "postgresql://postgres:password@localhost:5432/postgres"
-os.environ["PG_COLLECTION_NAME"] = "rag_embedding"
+# This script embeds a codebase into a PostgreSQL vector database for a RAG system.
+# It loads documents, splits them into chunks, generates embeddings, and stores them.
 
 # Path to the cloned repository
 REPO_PATH = "./repo"
@@ -97,15 +91,22 @@ def embed_and_store(documents):
             embedding=embeddings,
             collection_name=collection_name,
             connection_string=connection_string,
-            pre_delete_collection=True # This will delete the collection if it already exists
+            # This will delete the collection if it already exists, ensuring a fresh start.
+            pre_delete_collection=True
         )
         print("PGVector store created and data inserted successfully.")
     except Exception as e:
         print(f"Error creating PGVector store: {e}")
 
 if __name__ == "__main__":
-    if not os.path.exists(REPO_PATH):
-        print(f"Error: Repository not found at {REPO_PATH}. Please clone it first.")
+    # Check for required environment variables
+    if not os.getenv("PG_CONNECTION_STRING"):
+        print("Error: The PG_CONNECTION_STRING environment variable is not set.")
+        print("Please set it to your PostgreSQL connection string.")
+        print("Example: export PG_CONNECTION_STRING=\"postgresql://user:password@host:port/dbname\"")
+    elif not os.path.exists(REPO_PATH):
+        print(f"Error: Repository not found at {REPO_PATH}.")
+        print("Please make sure the code you want to embed is in the './repo' directory.")
     else:
         print(f"Loading documents from {REPO_PATH}...")
         documents = load_documents(REPO_PATH, file_types)

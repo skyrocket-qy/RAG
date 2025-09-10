@@ -7,12 +7,11 @@ from langchain.prompts import PromptTemplate
 
 # --- Configuration ---
 
-# Path to the LLaMA GGUF model
-# UPDATE THIS PATH to point to your local LLaMA model file
-LLAMA_MODEL_PATH = os.path.expanduser("~/Llama-3.1-8B-Instruct.Q4_K_M.gguf")
+# Path to the LLaMA GGUF model, fetched from an environment variable
+LLAMA_MODEL_PATH = os.getenv("LLAMA_MODEL_PATH")
 
-# PostgreSQL connection details (ensure these match your setup)
-PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "postgresql://postgres:password@localhost:5432/postgres")
+# PostgreSQL connection details, fetched from environment variables
+PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING")
 PG_COLLECTION_NAME = os.getenv("PG_COLLECTION_NAME", "rag_embedding")
 
 # Embedding model for retrieval (must match the one used in embed.py)
@@ -71,11 +70,21 @@ Helpful Answer:"""
 # --- Main Execution ---
 
 if __name__ == "__main__":
-    if not os.path.exists(LLAMA_MODEL_PATH):
-        print(f"Error: LLaMA model not found at {LLAMA_MODEL_PATH}.")
-        print("Please update the LLAMA_MODEL_PATH variable in this script.")
+    # --- Pre-flight Checks ---
+    if not LLAMA_MODEL_PATH:
+        print("Error: The LLAMA_MODEL_PATH environment variable is not set.")
+        print("Please set it to the path of your LLaMA GGUF model file.")
+        print("Example: export LLAMA_MODEL_PATH=\"/path/to/your/model.gguf\"")
+    elif not os.path.exists(LLAMA_MODEL_PATH):
+        print(f"Error: LLaMA model not found at the specified path: {LLAMA_MODEL_PATH}")
+        print("Please ensure the path is correct and the file exists.")
+    elif not PG_CONNECTION_STRING:
+        print("Error: The PG_CONNECTION_STRING environment variable is not set.")
+        print("Please set it to your PostgreSQL connection string.")
+        print("Example: export PG_CONNECTION_STRING=\"postgresql://user:password@host:port/dbname\"")
     else:
         try:
+            # --- Initialization ---
             llm = initialize_llm()
             retriever = initialize_retriever()
             rag_chain = setup_rag_chain(llm, retriever)
@@ -83,21 +92,32 @@ if __name__ == "__main__":
             print("\n--- RAG System Ready ---")
             print("Type your query and press Enter. Type 'exit' to quit.")
 
+            # --- Interactive Query Loop ---
             while True:
                 query = input("\nQuery: ")
                 if query.lower() == 'exit':
                     break
 
+                if not query.strip():
+                    continue
+
                 print("Searching and generating...")
-                result = rag_chain({"query": query})
-                print("\nAnswer:")
-                print(result["result"])
-                print("\nSource Documents:")
-                for doc in result["source_documents"]:
-                    print(f"- {doc.metadata['source']}: {doc.page_content[:100]}...")
+                try:
+                    result = rag_chain({"query": query})
+                    print("\nAnswer:")
+                    print(result["result"])
+                    print("\n--- Source Documents ---")
+                    for doc in result["source_documents"]:
+                        source = doc.metadata.get('source', 'Unknown')
+                        content_preview = doc.page_content[:120].replace('\n', ' ') + "..."
+                        print(f"- {source}: \"{content_preview}\"")
+
+                except Exception as e:
+                    print(f"\nAn error occurred while processing your query: {e}")
 
         except Exception as e:
-            print(f"An error occurred: {e}")
-            print("Please ensure your PostgreSQL database is running and accessible.")
+            print(f"\nAn error occurred during initialization: {e}")
+            print("Please ensure your PostgreSQL database is running and accessible,")
+            print("and that the embedding model name is correct.")
 
-    print("Exiting RAG system.")
+    print("\nExiting RAG system.")

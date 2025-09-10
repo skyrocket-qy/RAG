@@ -114,4 +114,3 @@ if __name__ == "__main__":
             embed_and_store(documents)
         else:
             print("No documents found to process.")
-            

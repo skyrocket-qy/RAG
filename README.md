@@ -119,3 +119,6 @@ To confirm that the embeddings have been successfully stored in your PostgreSQL 
 
 *   **LangChain Deprecation Warning:** You might see a `LangChainDeprecationWarning` regarding `HuggingFaceEmbeddings`. This is a warning, not an error, and the script will still function. For future compatibility, you can update your `langchain` setup to use the new `langchain-huggingface` package as suggested in the warning.
 *   **Customizing File Types:** If you have other file types in your repository that you wish to embed, you can add them to the `file_types` dictionary in `embed.py`. If `unstructured` struggles with a specific file type, consider loading it as plain text using `TextLoader` as demonstrated for Dockerfiles and Go module files.
+
+HF token
+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

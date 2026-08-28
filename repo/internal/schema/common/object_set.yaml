@@ -1,0 +1,21 @@
+namespaces:
+  object:
+    type: resource
+    relations:
+      read:
+        union:
+          - computed_userset:
+              relation: read
+          - tuple_to_userset:
+              tupleset:
+                relation: belong
+              computed_userset:
+                relation: read
+  object_set:
+    type: resource
+    relations:
+      read: {}
+
+      belong:
+        allow_subject_namespaces: [object]
+      

@@ -1,0 +1,26 @@
+## define tenant-based id
+namespaces:
+  object:
+    allow_subject_namespaces: [role] # if not set, means all allowed
+    relations:
+      read:
+        union:
+          - tuple_to_userset:
+              computed_userset:
+                relation: member     
+          - tuple_to_userset:
+              tupleset:
+                relation: write
+              computed_userset:
+                relation: member
+      write:
+        tuple_to_userset:
+          computed_userset:
+            relation: member
+  role:
+    relations:
+      member:
+        allow_subject_namespaces: [user]
+        computed_userset:
+          relation: member
+  user: {}
